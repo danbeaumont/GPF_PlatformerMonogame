@@ -31,20 +31,26 @@ namespace PlatformerMonogame1
 
         }
 
-        public void Load (ContentManager content, string asset)
+        public void Load (ContentManager content, string asset, bool useOffset)
         {
             texture = content.Load<Texture2D>(asset);
             width = texture.Bounds.Width;
             height = texture.Bounds.Height;
+
+            if (useOffset == true)
+            {
+                offset = new Vector2(leftEdge + width / 2, topEdge + height / 2);
+            }
+
             UpdateHitBox();
         }
 
         public void UpdateHitBox()
         {
-            leftEdge = (int)position.X;
-            rightEdge = (int)position.X + width;
-            topEdge = (int)position.Y;
-            bottomEdge = (int)position.Y + height;
+            leftEdge = (int)position.X - (int)offset.X;
+            rightEdge = leftEdge + width;
+            topEdge = (int)position.Y - (int)offset.Y;  // 0 - 32 = -32
+            bottomEdge = topEdge + height;              // -32 + 64 = 32
         }
 
         public void Update (float deltaTime)
@@ -54,7 +60,7 @@ namespace PlatformerMonogame1
 
         public void Draw (SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position + offset, Color.White);
+            spriteBatch.Draw(texture, position - offset, Color.White);
         }
     }
 }
