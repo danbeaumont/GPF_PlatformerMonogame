@@ -26,6 +26,11 @@ namespace PlatformerMonogame1
         public int topEdge = 0;
         public int bottomEdge = 0;
 
+        List<AnimatedTexture> animations = new List<AnimatedTexture>();
+        List<Vector2> animationOffsets = new List<Vector2>();
+        int currentAnimation = 0;
+        SpriteEffects effects = SpriteEffects.None;
+
         public Sprite()
         {
 
@@ -49,18 +54,46 @@ namespace PlatformerMonogame1
         {
             leftEdge = (int)position.X - (int)offset.X;
             rightEdge = leftEdge + width;
-            topEdge = (int)position.Y - (int)offset.Y;  // 0 - 32 = -32
-            bottomEdge = topEdge + height;              // -32 + 64 = 32
+            topEdge = (int)position.Y - (int)offset.Y;  
+            bottomEdge = topEdge + height;              
         }
 
         public void Update (float deltaTime)
         {
-
+            animations[currentAnimation].UpdateFrame(deltaTime);
         }
 
         public void Draw (SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position - offset, Color.White);
+            animations[currentAnimation].DrawFrame(spriteBatch, position + animationOffsets[currentAnimation], effects);
+        }
+
+        public void AddAnimation(AnimatedTexture animation, int xOffset = 0, int yOffset = 0)
+        {
+            animations.Add(animation);
+            animationOffsets.Add(new Vector2(xOffset, yOffset));
+        }
+
+        public void SetFlipped (bool state)
+        {
+            if (state == true)
+            {
+                effects = SpriteEffects.FlipHorizontally;
+            }
+            else
+            {
+                effects = SpriteEffects.None;
+            }
+        }
+
+        public void Pause()
+        {
+            animations[currentAnimation].Pause();
+        }
+
+        public void Play()
+        {
+            animations[currentAnimation].Play();
         }
     }
 }
