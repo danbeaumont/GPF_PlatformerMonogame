@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,9 +16,16 @@ namespace PlatformerMonogame1
         public Sprite playerSprite = new Sprite();
 
         Game1 game = null;
-        float runSpeed = 15000f;
+        float runSpeed = 250f;
+        float maxRunSpeed = 500f;
+        float friction = 500f;
+        float terminalVelocity = 500f;
+        public float jumpStrength = 50000f;
 
         Collision collision = new Collision();
+
+        SoundEffect jumpSound;
+        SoundEffectInstance jumpSoundInstance;
 
         public Player()
         {
@@ -33,8 +41,8 @@ namespace PlatformerMonogame1
             playerSprite.AddAnimation(animation, 0, 0);
             playerSprite.Pause();
 
-            // delete this
-            //playerSprite.offset = new Vector2(24, 24);
+            jumpSound = content.Load<SoundEffect>("Jump");
+            jumpSoundInstance = jumpSound.CreateInstance();
 
             game = theGame;
             playerSprite.velocity = Vector2.Zero;
@@ -55,20 +63,36 @@ namespace PlatformerMonogame1
 
         private void UpdateInput (float deltaTime)
         {
-            Vector2 localAcceleration = new Vector2(0, 0);
+            bool wasMovingLeft = playerSprite.velocity.X < 0;
+            bool wasMovingRight = playerSprite.velocity.X > 0;
+
+            Vector2 localAcceleration = game.gravity;
 
             if (Keyboard.GetState().IsKeyDown(Keys.Left) == true)
             {
-                localAcceleration.X = -runSpeed;
+                localAcceleration.X += -runSpeed;
                 playerSprite.SetFlipped(true);
                 playerSprite.Play();
             }
+            else if (wasMovingLeft == true)
+            {
+                localAcceleration.X += friction;
+                playerSprite.Pause();
+            }
+        
             if (Keyboard.GetState().IsKeyDown(Keys.Right) == true)
             {
-                localAcceleration.X = runSpeed;
+                localAcceleration.X += runSpeed;
                 playerSprite.SetFlipped(false);
                 playerSprite.Play();
             }
+            else if (wasMovingRight == true)
+            {
+                localAcceleration.X += -friction;
+                playerSprite.Pause();
+            }
+
+            /*
             if (Keyboard.GetState().IsKeyDown(Keys.Up) == true)
             {
                 localAcceleration.Y = -runSpeed;
@@ -77,12 +101,29 @@ namespace PlatformerMonogame1
             {
                 localAcceleration.Y = runSpeed;
             }
+            */
+
             if (Keyboard.GetState().IsKeyUp(Keys.Left) == true && Keyboard.GetState().IsKeyUp(Keys.Right) == true)
             {
                 playerSprite.Pause();
             }
 
-            playerSprite.velocity = localAcceleration * deltaTime;
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) == true)
+            {
+                jumpSoundInstance.Play();
+            }
+
+            playerSprite.velocity += localAcceleration * deltaTime;
+
+            if (playerSprite.velocity.X > maxRunSpeed)
+            {
+                playerSprite.velocity.X = maxRunSpeed;
+            }
+            else if (playerSprite.velocity.X < -maxRunSpeed)
+            {
+                playerSprite.velocity.X = -maxRunSpeed;
+            }
+
             playerSprite.position += playerSprite.velocity * deltaTime;
 
             collision.game = game;

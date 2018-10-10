@@ -219,14 +219,12 @@ namespace PlatformerMonogame1
                 {
                     // if right edge is closest, collision is happening to the right of the platform
                     hero.position.X = tile.rightEdge + hero.offset.X;
-                    hero.velocity.X = 0;
                 }
                 else
                 {
                     // else if left edge is closest, collision is happening to the left of the platform
                     // ***********remove hero width
                     hero.position.X = tile.leftEdge - hero.width + hero.offset.X;
-                    hero.velocity.X = 0;
                 }
             }
             return hero;
@@ -246,20 +244,17 @@ namespace PlatformerMonogame1
                 {
                     // if the bottom edge is closes and overlapping on the top edge
                     hero.position.Y = tile.bottomEdge + hero.offset.Y;
-                    hero.velocity.Y = 0;
                 }
                 else if (leftEdgeDistance < rightEdgeDistance)
                 {
                     // else if left edge is closest and overlapping
                     hero.position.X = tile.rightEdge + hero.offset.X;
-                    hero.velocity.X = 0;
                 }
                 else
                 {
                     // else if right edge is closest and overlapping
                     // *******remove hero width
                     hero.position.X = tile.leftEdge - hero.width + hero.offset.X;
-                    hero.velocity.X = 0;
                 }
             }
             return hero;
